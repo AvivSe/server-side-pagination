@@ -5,5 +5,7 @@ export const SongSchema = new mongoose.Schema({
   artist: String,
   album: String,
   year: Number,
-  duration: Number,
+  duration: String,
+  image: String,
+  genre: String,
 });

@@ -1,7 +1,4 @@
-import { Document } from 'mongoose';
-
-export interface Song extends Document {
-  readonly _id: string;
+export class UpsetSongDto {
   readonly name: string;
   readonly artist: string;
   readonly album: string;

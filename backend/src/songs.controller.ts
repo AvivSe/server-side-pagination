@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, Param, Post, Put } from '@nestjs/common';
 import { SongsService } from './songs.service';
 import { Song } from './interfaces/Song';
-import { CreateSongDto } from './dto/create-song.dto';
+import { UpsetSongDto } from './dto/upset-song.dto';
 
 @Controller('songs')
 export class SongsController {
@@ -9,7 +9,7 @@ export class SongsController {
   }
 
   @Post()
-  create(@Body() creatSongDto: CreateSongDto): Promise<Song> {
+  create(@Body() creatSongDto: UpsetSongDto): Promise<Song> {
     return this.songsService.create(creatSongDto);
   }
 
@@ -18,11 +18,15 @@ export class SongsController {
     return this.songsService.find();
   }
 
-  @Put()
-  update(@Body() song: Song) {
-    return this.songsService.update(song);
+  @Put(':id')
+  updateOne(@Param() params, @Body() song: Song) {
+      return this.songsService.update(params.id, song);
   }
 
+  @Delete(':id')
+  deleteOne(@Param() params) {
+    return this.songsService.delete([params.id]);
+  }
   @Delete()
   delete(@Body() ids: string[]) {
     return this.songsService.delete(ids);
