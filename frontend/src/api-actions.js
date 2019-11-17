@@ -5,8 +5,8 @@ const api = "";
 const songs = "/songs";
 const songsUrl = `${host}${api}${songs}`;
 
-export const getSongs = () => {
-    return axios.get(songsUrl);
+export const getSongs = (params) => {
+    return axios.get(songsUrl, { params });
 };
 
 export const putSong = ({ _id, ...song}) => {

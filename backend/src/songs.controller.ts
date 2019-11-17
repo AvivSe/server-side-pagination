@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, HttpException, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Query } from '@nestjs/common';
 import { SongsService } from './songs.service';
-import { Song } from './interfaces/Song';
+import { Song } from './interfaces/song';
 import { UpsetSongDto } from './dto/upset-song.dto';
+import PaginationResponse from './interfaces/pagination.response';
 
 @Controller('songs')
 export class SongsController {
@@ -14,8 +15,8 @@ export class SongsController {
   }
 
   @Get()
-  find(): Promise<Song[]> {
-    return this.songsService.find();
+  find(@Query() query): Promise<PaginationResponse<Song>> {
+    return this.songsService.find(+query.startRow, +query.endRow);
   }
 
   @Put(':id')

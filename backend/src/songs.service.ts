@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Song } from './interfaces/Song';
+import { Song } from './interfaces/song';
 import { UpsetSongDto } from './dto/upset-song.dto';
+import PaginationResponse from './interfaces/pagination.response';
 
 @Injectable()
 export class SongsService {
@@ -21,7 +22,10 @@ export class SongsService {
     return this.songModel.findOneAndUpdate({ _id: id}, song, {new: true});
   }
 
-  async find(): Promise<Song[]> {
-    return await this.songModel.find().exec();
+  async find(startRow: number, endRow: number): Promise<PaginationResponse<Song>> {
+    return {
+      rows: await this.songModel.find().skip(startRow).limit(endRow - startRow).exec(),
+      lastRow: await this.songModel.countDocuments(),
+    };
   }
 }
