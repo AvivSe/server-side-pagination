@@ -16,3 +16,7 @@ export const putSong = ({ _id, ...song}) => {
 export const addSong = (song) => {
     return axios.post(`${songsUrl}`, song);
 };
+
+export const deleteOne = (songId) => {
+    return axios.delete(`${songsUrl}/${songId}`);
+};

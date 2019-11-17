@@ -21,7 +21,7 @@ const StyledForm = styled.form`
     display: flex;
     flex-direction: row;
     margin: auto;
-    width: 1000px;
+    width: 1200px;
     padding: 1rem 0;
 `;
 
