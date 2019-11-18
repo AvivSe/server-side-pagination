@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {AgGridColumn, AgGridReact} from '@ag-grid-community/react';
+import { AgGridReact} from '@ag-grid-community/react';
 import {AllModules} from '@ag-grid-enterprise/all-modules';
 import '@ag-grid-community/all-modules/dist/styles/ag-grid.css';
 import '@ag-grid-community/all-modules/dist/styles/ag-theme-balham-dark.css';
@@ -11,7 +11,8 @@ import styled from 'styled-components';
 import SongService from "./server-bridge/song.service";
 import PrimarySongService from "./server-bridge/primary.song.service";
 import MockSongService from "./server-bridge/mock.song.service";
-import LoggedSongService from "./server-bridge/logged.song.service";
+import LoggedSongService, {Channel, LoggerRow} from "./server-bridge/logged.song.service";
+import Logger from "./Logger";
 
 const useMockData = true;
 const DeleteCellRendererContainer = styled.div`
@@ -42,13 +43,25 @@ const AddSongButton = styled(Button)`
   }
 `;
 
-const consoleLogger = (...details: any[]) => console.log(details);
-
+const Wrapper = styled.div`
+  width: 1200px;
+`;
 const Songs: React.FC = () => {
     const [apis, setAgGridApis] = useState({grid: null, column: null});
-    const [columnDefs] = useState(defaultColumnDefs);
-    const [showAddSong, setShowAddSong] = useState(false);
-    const songService: SongService = new LoggedSongService(useMockData ? new MockSongService() : new PrimarySongService(), [consoleLogger]); //new MockSongService();
+    const [showAddSong, setShowAddSong] = useState<Boolean>(false);
+    const [logs, setLogs] = useState<LoggerRow[]>([]);
+
+    class LogChannel implements Channel {
+        log(row: LoggerRow) {
+            setLogs(prevState => {
+                return [...prevState, {...row, num: prevState.length}];
+            });
+        }
+    }
+
+    const songService: SongService = new LoggedSongService(useMockData ? new MockSongService() : new PrimarySongService(), [
+        new LogChannel()
+    ]); //new MockSongService();
 
     useEffect(() => {
     }, []);
@@ -89,8 +102,8 @@ const Songs: React.FC = () => {
         setShowAddSong(false);
     };
 
-    return (<>
-            <div className="ag-theme-balham-dark" style={{height: '250px', width: '1200px'}}>
+    return (<Wrapper>
+            <div className="ag-theme-balham-dark" style={{height: '250px'}}>
                 <AgGridReact
                     onGridReady={onGridReady}
                     onCellValueChanged={cellValueChanged}
@@ -102,25 +115,21 @@ const Songs: React.FC = () => {
                     suppressRowClickSelection={true}
                     frameworkComponents={frameworkComponents}
                     gridOptions={{rowModelType: 'serverSide'}}
+                    columnDefs={defaultColumnDefs}
                     defaultColDef={{
                         resizable: true,
                         sortable: true,
                         editable: true,
                         filter: true,
                     }}
-                    modules={AllModules}>
-                    {
-                        columnDefs.map(({cellRenderer, ...rest}, i) => <AgGridColumn
-                            cellRenderer={cellRenderer}
-                            key={rest.headerName + i} {...rest}/>)
-                    }
-                </AgGridReact>
+                    modules={AllModules}/>
             </div>
             <AddSongWrapper>
                 {showAddSong ? <AddSong handleSubmit={handleSubmit} handleClickClose={() => setShowAddSong(false)}/> :
                     <AddSongButton onClick={() => setShowAddSong(true)}>Add song</AddSongButton>}
             </AddSongWrapper>
-        </>
+            <Logger rows={logs}/>
+        </Wrapper>
     )
 };
 

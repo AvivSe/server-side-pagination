@@ -1,32 +1,71 @@
 import SongService, {Song} from "./song.service";
 
+export interface Channel {
+    readonly log: Function;
+}
+
+export class DefaultChannel implements Channel {
+    log(row: LoggerRow) {
+        console.log(row);
+    }
+}
+
+export interface LoggerRow {
+    readonly num: number;
+    readonly service: string;
+    readonly action: string;
+    readonly description: string;
+    readonly input: string;
+}
+
 export default class LoggedSongService implements SongService {
     readonly songService: SongService;
-    readonly loggers: Function[];
+    readonly channels: Channel[];
 
 
-    constructor(songService: SongService, loggers: Function[]) {
+    constructor(songService: SongService, channels: Channel[]) {
         this.songService = songService;
-        this.loggers = loggers;
+        this.channels = [new DefaultChannel(), ...channels];
     }
 
     addSong(song: Song): Promise<any> {
-        this.loggers.forEach(logger => logger("Song service", "Add song", song));
+        this.channels.forEach(channel => channel.log({
+            service: "song service",
+            action: "add song",
+            description: "request",
+            input: song
+        }));
         return this.songService.addSong(song);
     }
 
     deleteOne(songId: string): Promise<any> {
-        this.loggers.forEach(logger => logger("Song service", "Delete one", songId));
+        this.channels.forEach(channel => channel.log({
+            service: "song service",
+            action: "delete one",
+            description: "request",
+            input: songId
+        }));
         return this.songService.deleteOne(songId);
     }
 
     getSongs(params: any): Promise<any> {
-        this.loggers.forEach(logger => logger("Song service", "Get songs", `Start row: ${params.startRow}`, `End row: ${params.endRow}`));
+        const { startRow, endRow } = params;
+        this.channels.forEach(channel => channel.log({
+            service: "song service",
+            action: "get songs",
+            description: "request",
+            input: JSON.stringify({ startRow, endRow})
+        }));
         return this.songService.getSongs(params);
     }
 
     putSong(song: Song): Promise<any> {
-        this.loggers.forEach(logger => logger("Song service", "Put songs", song));
+        this.channels.forEach(channel => channel.log({
+            service: "song service",
+            action: "put songs",
+            description: "request",
+            input: JSON.stringify(song),
+        }));
         return this.songService.putSong(song);
     }
 
