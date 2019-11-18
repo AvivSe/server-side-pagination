@@ -33,20 +33,20 @@ const CancelBtn = styled(Button)`
 
 interface AddSongProps {
     handleSubmit: any,
-    handleClickCancel: any,
+    handleClickClose: any,
 }
-const AddSong: React.FC<AddSongProps> = ({handleSubmit, handleClickCancel}) => {
+const AddSong: React.FC<AddSongProps> = ({handleSubmit, handleClickClose}) => {
     const [focused, setFocused] = useState('');
 
     return (<Formik
         initialValues={{
-            [fields.name]: "Dark Necessities",
-            [fields.artist]: "Red Hot Chili Peppers",
-            [fields.album]: "Dark Necessities",
-            [fields.year]: 2016,
-            [fields.duration]: "5:13",
-            [fields.image]: "Image",
-            [fields.genre]: "Punk",
+            [fields.name]: '',
+            [fields.artist]:'',
+            [fields.album]: '',
+            [fields.year]: null,
+            [fields.duration]: '',
+            [fields.image]: '',
+            [fields.genre]: '',
         }}
         onSubmit={handleSubmit}
     >
@@ -65,7 +65,7 @@ const AddSong: React.FC<AddSongProps> = ({handleSubmit, handleClickCancel}) => {
                                                                  handleBlur(e);
                                                              }}/>)}
                 <Button type={'submit'}> Submit </Button>
-                <CancelBtn onClick={handleClickCancel}>X</CancelBtn>
+                <CancelBtn onClick={handleClickClose}>X</CancelBtn>
             </StyledForm>)}
     </Formik>)
 };

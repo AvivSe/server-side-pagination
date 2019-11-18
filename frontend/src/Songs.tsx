@@ -86,6 +86,7 @@ const Songs: React.FC = () => {
             // @ts-ignore
             apis.grid.purgeServerSideCache();
         });
+        setShowAddSong(false);
     };
 
     return (<>
@@ -116,7 +117,7 @@ const Songs: React.FC = () => {
                 </AgGridReact>
             </div>
             <AddSongWrapper>
-                {showAddSong ? <AddSong handleSubmit={handleSubmit} handleClickCancel={() => setShowAddSong(false)}/> :
+                {showAddSong ? <AddSong handleSubmit={handleSubmit} handleClickClose={() => setShowAddSong(false)}/> :
                     <AddSongButton onClick={() => setShowAddSong(true)}>Add song</AddSongButton>}
             </AddSongWrapper>
         </>
