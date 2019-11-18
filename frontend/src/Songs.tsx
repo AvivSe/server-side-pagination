@@ -1,20 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import {AgGridColumn, AgGridReact} from '@ag-grid-community/react';
 import {AllModules} from '@ag-grid-enterprise/all-modules';
-import {addSong, deleteOne, putSong} from './api-actions';
 import '@ag-grid-community/all-modules/dist/styles/ag-grid.css';
 import '@ag-grid-community/all-modules/dist/styles/ag-theme-balham-dark.css';
 import AddSong from "./add-song";
 import {Button} from "@material-ui/core";
-import ServerSideDatasource from './server-bridge/primary.datasource'
-
+import ServerSideDatasource from './server-bridge/song.datasource'
 // @ts-ignore
 import styled from 'styled-components';
+import SongService from "./server-bridge/song.service";
+import PrimarySongService from "./server-bridge/primary.song.service";
+import MockSongService from "./server-bridge/mock.song.service";
+import LoggedSongService from "./server-bridge/logged.song.service";
 
+const useMockData = true;
 const DeleteCellRendererContainer = styled.div`
  color: red;
  cursor: pointer;
 `;
+
 const defaultColumnDefs = [
     {headerName: "#", width: 45, checkboxSelection: true, sortable: false, filter: false, pinned: true,},
     {headerName: "Id", field: "_id", hide: true, sortable: false, editable: false},
@@ -38,11 +42,13 @@ const AddSongButton = styled(Button)`
   }
 `;
 
+const consoleLogger = (...details: any[]) => console.log(details);
+
 const Songs: React.FC = () => {
-    const [, setAgGridApis] = useState({grid: null, column: null});
+    const [apis, setAgGridApis] = useState({grid: null, column: null});
     const [columnDefs] = useState(defaultColumnDefs);
-    const [rowData, setRawData] = useState([]);
     const [showAddSong, setShowAddSong] = useState(false);
+    const songService: SongService = new LoggedSongService(useMockData ? new MockSongService() : new PrimarySongService(), [consoleLogger]); //new MockSongService();
 
     useEffect(() => {
     }, []);
@@ -50,9 +56,9 @@ const Songs: React.FC = () => {
     const DeleteCellRenderer = (props: any) => {
         const handleClickDelete = () => {
             const songId = props.data._id;
-            deleteOne(songId).then(({data}) => {
+            songService.deleteOne(songId).then(({data}) => {
                 if (data && data.ok === 1) {
-                    setRawData((prevState) => [...prevState.filter(({_id}) => _id !== songId)]);
+                    props.api.purgeServerSideCache();
                 }
             })
         };
@@ -66,20 +72,20 @@ const Songs: React.FC = () => {
     // @ts-ignore
     const onGridReady = ({columnApi, api}) => {
         setAgGridApis({grid: api, column: columnApi});
-
-        // @ts-ignore
-        api.setServerSideDatasource(new ServerSideDatasource());
+        api.setServerSideDatasource(new ServerSideDatasource(songService));
         api.sizeColumnsToFit();
     };
 
     // @ts-ignore
     const cellValueChanged = ({data}) => {
-        putSong(data).then();
+        songService.putSong(data).then();
     };
 
     const handleSubmit = (song: any) => {
-        // @ts-ignore
-        addSong(song).then(({data}) => setRawData(prevState => [...prevState, data]))
+        songService.addSong(song).then(() => {
+            // @ts-ignore
+            apis.grid.purgeServerSideCache();
+        });
     };
 
     return (<>
@@ -90,14 +96,15 @@ const Songs: React.FC = () => {
                     //rowData={rowData}
                     pagination={true}
                     paginationAutoPageSize={true}
-                    cacheBlockSize={10}
+                    cacheBlockSize={6}
                     rowSelection="multiple"
                     suppressRowClickSelection={true}
                     frameworkComponents={frameworkComponents}
-                    gridOptions={{rowModelType:'serverSide'}}
+                    gridOptions={{rowModelType: 'serverSide'}}
                     defaultColDef={{
                         resizable: true,
                         sortable: true,
+                        editable: true,
                         filter: true,
                     }}
                     modules={AllModules}>

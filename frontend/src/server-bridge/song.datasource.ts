@@ -1,20 +1,26 @@
-import {getSongs} from "../api-actions";
+import SongService from "./song.service";
 
 // datasource for Server-side Row Model
-interface IServerSideDatasource {
+interface Datasource {
     // grid calls this to get rows
     getRows(params: any): void; // any is referring to IServerSideGetRowsParams
     // optional destroy method, if your datasource has state it needs to clean up
     destroy?(): void;
 }
 
-class ServerSideDatasource implements IServerSideDatasource{
+class SongDatasource implements Datasource{
+    songService: SongService;
+
     destroy(): void {
+    }
+
+    constructor(songService: SongService) {
+        this.songService = songService;
     }
 
     getRows(params: any): void {
         const { request, successCallback, failCallback } = params;
-        getSongs(request).then(({data}) => {
+        this.songService.getSongs(request).then(({data}) => {
             if(!!data) {
                 successCallback(data.rows, data.lastRow);
             } else {
@@ -24,4 +30,4 @@ class ServerSideDatasource implements IServerSideDatasource{
     }
 }
 
-export default ServerSideDatasource;
+export default SongDatasource;
