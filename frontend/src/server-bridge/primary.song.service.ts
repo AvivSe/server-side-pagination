@@ -1,7 +1,7 @@
 import axios from 'axios';
 import SongService, {Song} from "./song.service";
 
-const host = "http://localhost:8080";
+const host = process.env.REACT_APP_PRIMARY_HOST || "http://localhost:8080";
 const api = "";
 const songs = "/songs";
 const songsUrl = `${host}${api}${songs}`;
