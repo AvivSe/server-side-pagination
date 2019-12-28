@@ -4,6 +4,9 @@
   "description": "",
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": "11.13.0"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build && npm install --prefix frontend && cp -R -p frontend/build dist/frontend",
