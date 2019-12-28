@@ -4,6 +4,9 @@
   "jsRules": {
     "no-unused-expression": true
   },
+  "linterOptions": {
+    "exclude": ["frontend"]
+  },
   "rules": {
     "quotemark": [true, "single"],
     "member-access": [false],
